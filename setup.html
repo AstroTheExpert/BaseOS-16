@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BaseOS Setup</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, sans-serif;
+            overflow: hidden;
+            user-select: none;
+            background-color: #f0f0f0; /* A light background for setup */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .setup-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .setup-container h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .setup-container button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+
+        .setup-container button:hover {
+            background-color: #005bb5;
+        }
+
+        .setup-step {
+            display: none;
+        }
+
+        .setup-step.active {
+            display: block;
+        }
+
+        #oobe-form {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        #oobe-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        #oobe-form input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+         #installation-progress {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+            height: 20px;
+            position: relative;
+        }
+
+        #installation-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #28c840;
+            transition: width 0.5s ease;
+        }
+
+        #installation-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-size: 0.9em;
+            text-align: center;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div id="welcome-step" class="setup-step active">
+            <h2>Welcome to BaseOS</h2>
+            <p>Let's get your system set up.</p>
+            <button id="start-install">Start Installation</button>
+        </div>
+
+        <div id="installation-step" class="setup-step">
+            <h2>Installing BaseOS...</h2>
+             <div id="installation-progress">
+                <div id="installation-bar"></div>
+                <div id="installation-text">Preparing...</div>
+            </div>
+            <p style="margin-top: 20px;">(This is a simulation. The actual installation is instant.)</p>
+        </div>
+
+        <div id="oobe-step" class="setup-step">
+            <h2>Out-of-Box Experience</h2>
+            <p>Tell us a little about yourself.</p>
+            <div id="oobe-form">
+                <label for="username">Choose a username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="computername">Choose a computer name:</label>
+                <input type="text" id="computername" name="computername" required>
+            </div>
+            <button id="finish-setup">Finish Setup</button>
+        </div>
+         <div id="finishing-step" class="setup-step">
+            <h2>Finishing Up...</h2>
+            <p>Your BaseOS is almost ready.</p>
+         </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeStep = document.getElementById('welcome-step');
+            const installationStep = document.getElementById('installation-step');
+            const oobeStep = document.getElementById('oobe-step');
+             const finishingStep = document.getElementById('finishing-step');
+            const startInstallBtn = document.getElementById('start-install');
+            const finishSetupBtn = document.getElementById('finish-setup');
+             const installationBar = document.getElementById('installation-bar');
+            const installationText = document.getElementById('installation-text');
+
+            // Check if setup is already complete
+            if (localStorage.getItem('baseosSetupComplete')) {
+                // If setup is complete, redirect immediately to the main OS
+                window.location.replace('index.html');
+                return; // Stop script execution
+            }
+
+            startInstallBtn.addEventListener('click', () => {
+                welcomeStep.classList.remove('active');
+                installationStep.classList.add('active');
+                simulateInstallation();
+            });
+
+            finishSetupBtn.addEventListener('click', () => {
+                const username = document.getElementById('username').value.trim();
+                const computername = document.getElementById('computername').value.trim();
+
+                if (username && computername) {
+                    localStorage.setItem('baseosUsername', username);
+                    localStorage.setItem('baseosComputername', computername);
+
+                    oobeStep.classList.remove('active');
+                     finishingStep.classList.add('active');
+
+                    // Simulate finishing up and redirect
+                    setTimeout(() => {
+                        localStorage.setItem('baseosSetupComplete', 'true');
+                        window.location.replace('index.html');
+                    }, 1500); // Short delay before redirect
+                } else {
+                    alert('Please enter both a username and a computer name.');
+                }
+            });
+
+             function simulateInstallation() {
+                 const steps = [
+                     { text: 'Formatting drive...', progress: 10 },
+                     { text: 'Copying files...', progress: 40 },
+                     { text: 'Installing system components...', progress: 70 },
+                     { text: 'Configuring settings...', progress: 90 },
+                     { text: 'Finishing installation...', progress: 100 }
+                 ];
+
+                 let currentProgress = 0;
+                 let stepIndex = 0;
+
+                 const installInterval = setInterval(() => {
+                     if (stepIndex < steps.length) {
+                         const step = steps[stepIndex];
+                         installationBar.style.width = step.progress + '%';
+                         installationText.textContent = step.text;
+                         stepIndex++;
+                     } else {
+                         clearInterval(installInterval);
+                         // Move to OOBE step after simulated installation
+                         setTimeout(() => {
+                             installationStep.classList.remove('active');
+                             oobeStep.classList.add('active');
+                         }, 500); // Short delay after progress reaches 100
+                     }
+                 }, 1000); // Simulate each step taking 1 second
+             }
+        });
+    </script>
+</body>
+</html>
